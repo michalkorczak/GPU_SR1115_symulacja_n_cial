@@ -1,6 +1,7 @@
 #include <iostream>
 #include "../include/structures.cuh"
 #include "../include/initialization.cuh"
+#include "../include/file_operations.cuh"
 
 #define BLOCK_SIZE 256
 #define G 6.67430e-11            // Gravitational constant
@@ -57,7 +58,7 @@ __global__ void computeNewPositionAndSpeed(float2* positions, float2* velocities
 int main(const int argc, const char** argv) {
   srand(time(NULL));
 
-  int numberOfBodies = 1000; // default value
+  int numberOfBodies = 1000;
   if (argc > 1) {
     numberOfBodies = atoi(argv[1]);
   }
@@ -67,14 +68,19 @@ int main(const int argc, const char** argv) {
     iterations = atoi(argv[2]);
   }
 
-  int printInterval = 100;
+  int saveInterval = 100;
   if (argc > 3) {
-    printInterval = atoi(argv[3]);
+    saveInterval = atoi(argv[3]);
   }
 
   float dt = 0.01f;
   if (argc > 4) {
     dt = atof(argv[4]);
+  }
+
+  std::string outputFilename = "output.json";
+  if (argc > 5) {
+    outputFilename = argv[5];
   }
 
   int numberOfBlocks = (numberOfBodies + BLOCK_SIZE - 1) / BLOCK_SIZE;
@@ -104,12 +110,9 @@ int main(const int argc, const char** argv) {
     cudaMemcpy(cpu_buffer, gpu_buffer, numberOfBodies * (sizeof(float) * 7), cudaMemcpyDeviceToHost);
 
 
-    if (printInterval > 0 && i % printInterval == 0)
+    if (saveInterval > 0 && i % saveInterval == 0)
     {
-      std::cout << "ITERATION: " << i + 1 << "----------------" << std::endl;
-      for (int j = 0; j < numberOfBodies; j++) {
-        std::cout << "Number: " << j << " - x: " << cpu_bodies.position[j].x << " - y: " << cpu_bodies.position[j].y << std::endl;
-      }
+      writeFile(outputFilename, &cpu_bodies, i * dt, numberOfBodies, i > saveInterval);
     }
   }
 
