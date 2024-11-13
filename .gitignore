@@ -1,2 +1,10 @@
 build/
 bin/
+
+CMakeFiles
+CMakeCache.txt
+_deps
+Makefile
+*.cmake
+
+cpu-proj/output.json
