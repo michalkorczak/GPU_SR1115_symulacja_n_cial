@@ -76,7 +76,7 @@ void update_velocities(std::vector<Body>& bodies, double dt) {
         double dx = bodies[j].x - bodies[i].x;
         double dy = bodies[j].y - bodies[i].y;
         double dz = bodies[j].z - bodies[i].z;
-        double dist = std::sqrt(dx * dx + dy * dy + dz * dz);
+        double dist = std::sqrt(dx * dx + dy * dy + dz * dz) + 1e-9;
         double F = G * bodies[i].mass * bodies[j].mass / (dist * dist);
 
         bodies[i].vx += dt * F * dx / (dist * bodies[i].mass);
