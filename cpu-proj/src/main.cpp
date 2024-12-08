@@ -81,25 +81,39 @@ void save_state(const Body& bodies, int n, const std::string& filename, int step
 void update_velocities(Body& bodies, int n, double dt) {
 #pragma omp parallel for schedule(dynamic, 64)
   for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      if (i != j) {
-        double dx = bodies.x[j] - bodies.x[i];
-        double dy = bodies.y[j] - bodies.y[i];
-        double dz = bodies.z[j] - bodies.z[i];
-        double dist = std::sqrt(dx * dx + dy * dy + dz * dz) + 1e-9;
-        double F = G * bodies.mass[i] * bodies.mass[j] / (dist * dist);
+    double ax_i = 0.0, ay_i = 0.0, az_i = 0.0;
 
-        double Fx = F * dx / dist;
-        double Fy = F * dy / dist;
-        double Fz = F * dz / dist;
+    for (int j = i + 1; j < n; j++) {
+      double dx = bodies.x[j] - bodies.x[i];
+      double dy = bodies.y[j] - bodies.y[i];
+      double dz = bodies.z[j] - bodies.z[i];
+      double dist = std::sqrt(dx * dx + dy * dy + dz * dz) + 1e-9;
+      double F = G * bodies.mass[i] * bodies.mass[j] / (dist * dist);
 
-        bodies.vx[i] += dt * Fx / bodies.mass[i];
-        bodies.vy[i] += dt * Fy / bodies.mass[i];
-        bodies.vz[i] += dt * Fz / bodies.mass[i];
-      }
+      double Fx = F * dx / dist;
+      double Fy = F * dy / dist;
+      double Fz = F * dz / dist;
+
+      // Siły są symetryczne: Fij = -Fji
+      ax_i += Fx / bodies.mass[i];
+      ay_i += Fy / bodies.mass[i];
+      az_i += Fz / bodies.mass[i];
+
+#pragma omp atomic
+      bodies.vx[j] -= dt * Fx / bodies.mass[j];
+#pragma omp atomic
+      bodies.vy[j] -= dt * Fy / bodies.mass[j];
+#pragma omp atomic
+      bodies.vz[j] -= dt * Fz / bodies.mass[j];
     }
+
+    // Aktualizacja prędkości ciała i
+    bodies.vx[i] += dt * ax_i;
+    bodies.vy[i] += dt * ay_i;
+    bodies.vz[i] += dt * az_i;
   }
 }
+
 
 void update_positions(Body& bodies, int n, double dt) {
 #pragma omp parallel for schedule(dynamic, 64)
