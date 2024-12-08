@@ -89,12 +89,13 @@ void update_velocities(std::vector<Body>& bodies, double dt) {
 
 void update_positions(std::vector<Body>& bodies, double dt) {
 #pragma omp parallel for
-  for (auto& body : bodies) {
-    body.x += body.vx * dt;
-    body.y += body.vy * dt;
-    body.z += body.vz * dt;
+  for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
+    bodies[i].x += bodies[i].vx * dt;
+    bodies[i].y += bodies[i].vy * dt;
+    bodies[i].z += bodies[i].vz * dt;
   }
 }
+
 
 int main(const int argc, const char** argv) {
   srand(time(NULL));

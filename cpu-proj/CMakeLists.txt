@@ -28,7 +28,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -O3)
 elseif(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /O2)
+    target_compile_options(${PROJECT_NAME} PRIVATE 
+        $<$<CONFIG:Debug>:/W4 /RTC1 /Od>
+    )
+    target_compile_options(${PROJECT_NAME} PRIVATE 
+        $<$<CONFIG:Release>:/W4 /O2>)
 endif()
 
 
