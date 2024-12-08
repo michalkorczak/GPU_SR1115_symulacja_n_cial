@@ -12,24 +12,36 @@ using json = nlohmann::json;
 #define G 6.67430e-11 // Gravitational constant
 
 struct Body {
-  double x, y, z;
-  double vx, vy, vz;
-  double mass;
+  std::vector<double> x, y, z;
+  std::vector<double> vx, vy, vz;
+  std::vector<double> mass;
 
-  json to_json() const {
+  void resize(int n) {
+    x.resize(n);
+    y.resize(n);
+    z.resize(n);
+    vx.resize(n);
+    vy.resize(n);
+    vz.resize(n);
+    mass.resize(n);
+  }
+
+  json to_json(int i) const {
     return {
-        {"position", {{"x", x}, {"y", y}, {"z", z}}}, {"velocity", {{"x", vx}, {"y", vy}, {"z", vz}}}, {"mass", mass}};
+        {"position", {{"x", x[i]}, {"y", y[i]}, {"z", z[i]}}},
+        {"velocity", {{"x", vx[i]}, {"y", vy[i]}, {"z", vz[i]}}},
+        {"mass", mass[i]}};
   }
 };
 
-void save_state(const std::vector<Body>& bodies, const std::string& filename, int step, bool append = true) {
+void save_state(const Body& bodies, int n, const std::string& filename, int step, bool append = true) {
   json step_data;
   step_data["step"] = step;
   step_data["timestamp"] = std::chrono::system_clock::now().time_since_epoch().count();
 
   json bodies_array = json::array();
-  for (const auto& body : bodies) {
-    bodies_array.push_back(body.to_json());
+  for (int i = 0; i < n; i++) {
+    bodies_array.push_back(bodies.to_json(i));
   }
   step_data["bodies"] = bodies_array;
 
@@ -66,33 +78,35 @@ void save_state(const std::vector<Body>& bodies, const std::string& filename, in
   outFile.close();
 }
 
-void update_velocities(std::vector<Body>& bodies, double dt) {
-  int n = bodies.size();
-
-#pragma omp parallel for
+void update_velocities(Body& bodies, int n, double dt) {
+#pragma omp parallel for schedule(dynamic, 64)
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++) {
       if (i != j) {
-        double dx = bodies[j].x - bodies[i].x;
-        double dy = bodies[j].y - bodies[i].y;
-        double dz = bodies[j].z - bodies[i].z;
+        double dx = bodies.x[j] - bodies.x[i];
+        double dy = bodies.y[j] - bodies.y[i];
+        double dz = bodies.z[j] - bodies.z[i];
         double dist = std::sqrt(dx * dx + dy * dy + dz * dz) + 1e-9;
-        double F = G * bodies[i].mass * bodies[j].mass / (dist * dist);
+        double F = G * bodies.mass[i] * bodies.mass[j] / (dist * dist);
 
-        bodies[i].vx += dt * F * dx / (dist * bodies[i].mass);
-        bodies[i].vy += dt * F * dy / (dist * bodies[i].mass);
-        bodies[i].vz += dt * F * dz / (dist * bodies[i].mass);
+        double Fx = F * dx / dist;
+        double Fy = F * dy / dist;
+        double Fz = F * dz / dist;
+
+        bodies.vx[i] += dt * Fx / bodies.mass[i];
+        bodies.vy[i] += dt * Fy / bodies.mass[i];
+        bodies.vz[i] += dt * Fz / bodies.mass[i];
       }
     }
   }
 }
 
-void update_positions(std::vector<Body>& bodies, double dt) {
-#pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
-    bodies[i].x += bodies[i].vx * dt;
-    bodies[i].y += bodies[i].vy * dt;
-    bodies[i].z += bodies[i].vz * dt;
+void update_positions(Body& bodies, int n, double dt) {
+#pragma omp parallel for schedule(dynamic, 64)
+  for (int i = 0; i < n; i++) {
+    bodies.x[i] += bodies.vx[i] * dt;
+    bodies.y[i] += bodies.vy[i] * dt;
+    bodies.z[i] += bodies.vz[i] * dt;
   }
 }
 
@@ -125,27 +139,28 @@ int main(const int argc, const char** argv) {
     outputFilename = argv[5];
   }
 
-  std::vector<Body> bodies(n);
+  Body bodies;
+  bodies.resize(n);
 
-  for (auto& body : bodies) {
-    body.x = rand() / (double)RAND_MAX * 100.0 - 50.0;
-    body.y = rand() / (double)RAND_MAX * 100.0 - 50.0;
-    body.z = rand() / (double)RAND_MAX * 100.0 - 50.0;
-    body.vx = body.vy = body.vz = 0.0;
-    body.mass = 1.0 + rand() / (double)RAND_MAX * 9.0;
+  for (int i = 0; i < n; i++) {
+    bodies.x[i] = rand() / (double)RAND_MAX * 100.0 - 50.0;
+    bodies.y[i] = rand() / (double)RAND_MAX * 100.0 - 50.0;
+    bodies.z[i] = rand() / (double)RAND_MAX * 100.0 - 50.0;
+    bodies.vx[i] = bodies.vy[i] = bodies.vz[i] = 0.0;
+    bodies.mass[i] = 1.0 + rand() / (double)RAND_MAX * 9.0;
   }
 
-  save_state(bodies, outputFilename, 0, false);
+  save_state(bodies, n, outputFilename, 0, false);
 
   auto start = std::chrono::high_resolution_clock::now();
 
   for (int step = 1; step < steps; step++) {
-    update_velocities(bodies, dt);
-    update_positions(bodies, dt);
+    update_velocities(bodies, n, dt);
+    update_positions(bodies, n, dt);
 
     if (saveInterval > 0 && step % saveInterval == 0) {
       std::cout << "Krok: " << step << "/" << steps << std::endl;
-      save_state(bodies, outputFilename, step, true); // Dopisuj kolejne kroki
+      save_state(bodies, n, outputFilename, step, true); // Dopisuj kolejne kroki
     }
   }
 
