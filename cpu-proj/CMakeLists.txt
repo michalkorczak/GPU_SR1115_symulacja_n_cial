@@ -13,8 +13,22 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/5376968f6948923e2411081fd9372e71a59d8e77.zip)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+set(TEST_SOURCES
+    tests/tests.cpp
+    src/physics.cpp
+)
+add_executable(tests ${TEST_SOURCES})
+target_link_libraries(tests gtest gtest_main nlohmann_json::nlohmann_json)
+add_test(NAME RunTests COMMAND tests)
+
 set(SOURCES
     src/main.cpp
+    src/physics.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
