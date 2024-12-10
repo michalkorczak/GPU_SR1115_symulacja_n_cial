@@ -29,6 +29,7 @@ Projekt składa się z następujących plików:
 - **`main.cpp`**: Punkt wejścia programu. Inicjalizuje dane wejściowe (ciała, kroki symulacji). Wywołuje funkcje aktualizujące prędkości i pozycje ciał. Zapisuje wyniki do pliku JSON.
 - **`physics.cpp`**: Implementuje logikę fizyczną - aktualizację prędkości, aktualizację pozycji, funkcję zapisu stanu symulacji.
 - **`physics.h`**: Definiuje strukturę danych (`Body`) i deklaruje funkcje.
+- **`tests.cpp`**: Implementuje proste testy symulacji.
 - **`CMakeLists.txt`**: Konfiguracja budowania projektu za pomocą **CMake**, w tym konfiguracja zależności jak OpenMP i biblioteka JSON.
 
 ---
