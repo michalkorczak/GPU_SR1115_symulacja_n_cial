@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "physics.h"
 
 int main(const int argc, const char** argv) {
@@ -60,3 +61,60 @@ int main(const int argc, const char** argv) {
 
   return 0;
 }
+
+/* 
+# TESTOWANIE
+int main() {
+    srand(time(NULL));
+
+    // Zakres wartości N do przetestowania
+    const int minN = 10;      // Minimalny rozmiar
+    const int maxN = 10000;    // Maksymalny rozmiar
+    const int stepSize = 10;  // Odstęp między kolejnymi wartościami N
+
+    int steps = 100;         // Liczba kroków symulacji
+    double dt = 0.01;        // Długość kroku czasowego
+
+    // Plik do zapisu wyników
+    std::ofstream resultsFile("results.csv");
+    if (!resultsFile.is_open()) {
+        std::cerr << "Błąd: Nie można otworzyć pliku do zapisu wyników." << std::endl;
+        return 1;
+    }
+
+    resultsFile << "N,ExecutionTime(ms)\n";
+
+    for (int n = minN; n <= maxN; n += stepSize) {
+        // Tworzenie ciał dla danego N
+        Body bodies;
+        bodies.resize(n);
+
+        for (int i = 0; i < n; i++) {
+            bodies.x[i] = rand() / (double)RAND_MAX * 100.0 - 50.0;
+            bodies.y[i] = rand() / (double)RAND_MAX * 100.0 - 50.0;
+            bodies.z[i] = rand() / (double)RAND_MAX * 100.0 - 50.0;
+            bodies.vx[i] = bodies.vy[i] = bodies.vz[i] = 0.0;
+            bodies.mass[i] = 1.0 + rand() / (double)RAND_MAX * 9.0;
+        }
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // Symulacja
+        for (int step = 0; step < steps; step++) {
+            update_velocities(bodies, n, dt);
+            update_positions(bodies, n, dt);
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+        // Zapis wyników
+        std::cout << "N: " << n << ", Czas wykonania: " << duration.count() << " ms" << std::endl;
+        resultsFile << n << "," << duration.count() << "\n";
+    }
+
+    resultsFile.close();
+    return 0;
+}
+
+*/
