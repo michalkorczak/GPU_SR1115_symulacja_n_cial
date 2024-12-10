@@ -1,14 +1,12 @@
-#include <iostream>
-#include "../include/structures.cuh"
-#include "../include/initialization.cuh"
 #include "../include/file_operations.cuh"
+#include "../include/initialization.cuh"
+#include "../include/structures.cuh"
+#include <iostream>
 
-#define BLOCK_SIZE 256
-#define G 6.67430e-11            // Gravitational constant
+#define BLOCK_SIZE 512
+#define G 6.67430e-11 // Gravitational constant
 
-void initializeBodies(Bodies& bodies, int numberOfBodies) {
-  initializeRandomly(bodies, numberOfBodies);
-}
+void initializeBodies(Bodies& bodies, int numberOfBodies) { initializeRandomly(bodies, numberOfBodies); }
 
 __global__ void computeBodyAcceleration(float2* position, float2* accelerations, float* masses, int n) {
   int index = blockDim.x * blockIdx.x + threadIdx.x;
@@ -88,30 +86,28 @@ int main(const int argc, const char** argv) {
   float* cpu_buffer = (float*)malloc(
       numberOfBodies * (sizeof(float) * 7)); // 7 floats per body - 1 mass + 2 position + 2 velocity + 2 acceleration
   Bodies cpu_bodies = {(float*)cpu_buffer, (float2*)(cpu_buffer + numberOfBodies),
-                   (float2*)(cpu_buffer + 3 * numberOfBodies), (float2*)(cpu_buffer + 5 * numberOfBodies)};
+                       (float2*)(cpu_buffer + 3 * numberOfBodies), (float2*)(cpu_buffer + 5 * numberOfBodies)};
 
   initializeBodies(cpu_bodies, numberOfBodies);
 
   float* gpu_buffer;
   cudaMalloc(&gpu_buffer, numberOfBodies * (sizeof(float) * 7));
   Bodies gpu_bodies = {(float*)gpu_buffer, (float2*)(gpu_buffer + numberOfBodies),
-                   (float2*)(gpu_buffer + 3 * numberOfBodies), (float2*)(gpu_buffer + 5 * numberOfBodies)};
+                       (float2*)(gpu_buffer + 3 * numberOfBodies), (float2*)(gpu_buffer + 5 * numberOfBodies)};
 
   for (int i = 0; i < iterations; i++) {
     cudaMemcpy(gpu_buffer, cpu_buffer, numberOfBodies * (sizeof(float) * 7), cudaMemcpyHostToDevice);
 
-    computeBodyAcceleration<<<numberOfBlocks, BLOCK_SIZE>>>(gpu_bodies.position, gpu_bodies.acceleration, gpu_bodies.mass,
-                                                            numberOfBodies);
+    computeBodyAcceleration<<<numberOfBlocks, BLOCK_SIZE>>>(gpu_bodies.position, gpu_bodies.acceleration,
+                                                            gpu_bodies.mass, numberOfBodies);
     cudaDeviceSynchronize();
 
-    computeNewPositionAndSpeed<<<numberOfBlocks, BLOCK_SIZE>>>(gpu_bodies.position, gpu_bodies.velocity, gpu_bodies.acceleration,
-                                                               gpu_bodies.mass, dt, numberOfBodies);
+    computeNewPositionAndSpeed<<<numberOfBlocks, BLOCK_SIZE>>>(
+        gpu_bodies.position, gpu_bodies.velocity, gpu_bodies.acceleration, gpu_bodies.mass, dt, numberOfBodies);
     cudaDeviceSynchronize();
     cudaMemcpy(cpu_buffer, gpu_buffer, numberOfBodies * (sizeof(float) * 7), cudaMemcpyDeviceToHost);
 
-
-    if (saveInterval > 0 && i % saveInterval == 0)
-    {
+    if (saveInterval > 0 && i % saveInterval == 0) {
       writeFile(outputFilename, &cpu_bodies, i * dt, numberOfBodies, i > saveInterval);
     }
   }
