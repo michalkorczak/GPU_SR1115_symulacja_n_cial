@@ -60,9 +60,9 @@ ctest
 ### Uruchomienie symulacji
 Po zbudowaniu projektu uruchom program:
 
-'''bash
+```bash
 ./NBodySimulationCPU [liczba_ciał] [liczba_kroków] [częstotliwość_zapisu] [długość_kroku_czasowego] [plik_wyjściowy]
-'''
+```
 
 ### Parametry
 - liczba_ciał (int): Liczba ciał w symulacji (domyślnie: 1000).
@@ -76,6 +76,7 @@ Po zbudowaniu projektu uruchom program:
 ## Szczegóły implementacji
 ### Główne komponenty
 1. **Struktura Body**:
+
 Reprezentuje ciała w symulacji:
 - Pozycja (`x`, `y`, `z`).
 - Prędkość (`vx`, `vy`, `vz`).
@@ -84,19 +85,22 @@ Reprezentuje ciała w symulacji:
 - Funkcja `to_json`: eksportuje dane ciała do formatu JSON.
 
 2. **`update_velocities`**:
+
 Aktualizuje prędkości ciał zgodnie z prawem grawitacji Newtona:
 - Iteruje przez każdą parę ciał.
 - Oblicza odległość między ciałami i siłę grawitacyjną:
-   - \( F = \frac{G \cdot m_1 \cdot m_2}{r^2} \).
-   - Rozkłada siłę na składowe \( F_x \), \( F_y \), \( F_z \).
+   - ![alt text](images/image.png)
+   - Rozkłada siłę na składowe ![alt text](images/image-1.png).
 - Aktualizuje prędkości:
-   - Dla ciała \( i \): \( v_x^i += \frac{F_x}{m_i} \cdot \Delta t \).
-   - Dla ciała \( j \): \( v_x^j -= \frac{F_x}{m_j} \cdot \Delta t \).
+   - Dla ciała i: ![alt text](images/image-2.png)
+   - Dla ciała j: ![alt text](images/image-3.png)
 
 3. **`update_positions`**:
-Aktualizuje pozycje ciał w przestrzeni 3D. Nowa pozycja obliczana jako: \( x = x + v_x \cdot \Delta t \).
+
+Aktualizuje pozycje ciał w przestrzeni 3D. Nowa pozycja obliczana jako: ![alt text](images/image-4.png)
 
 4. **`save_state`**:
+
 Zapisuje bieżący stan symulacji do pliku JSON:
 - Tworzy obiekt JSON zawierający pozycje, prędkości, masy ciał, numer kroku i znacznik czasu.
 - Obsługuje tryb nadpisywania pliku i dopisywania do istniejącego pliku.
@@ -105,8 +109,8 @@ Zapisuje bieżący stan symulacji do pliku JSON:
 
 ## Wydajność i optymalizacje
 1. **Złożoność**:
-   - **Czasowa**: \( O(N^2) \) z uwagi na konieczność obliczeń dla każdej pary ciał.
-   - **Pamięciowa**: \( O(N) \) dla przechowywania pozycji, prędkości i mas.
+   - **Czasowa**: ![alt text](images/image-5.png) z uwagi na konieczność obliczeń dla każdej pary ciał.
+   - **Pamięciowa**: ![alt text](images/image-6.png) dla przechowywania pozycji, prędkości i mas.
 
 2. **Optymalizacje**:
    - **OpenMP**:
@@ -115,7 +119,7 @@ Zapisuje bieżący stan symulacji do pliku JSON:
    - **Atomowe operacje**:
     - Zapewniają bezpieczeństwo wątków podczas modyfikacji wspólnych danych (prędkości).
    - **Redukcja redundantnych obliczeń**:
-     - Siły są symetryczne (\( F_{ij} = -F_{ji} \)), więc obliczenia są wykonywane tylko dla \( i < j \) (pary unikalne).
+     - Siły są symetryczne ![alt text](images/image-7.png), więc obliczenia są wykonywane tylko dla ![alt text](images/image-8.png) (pary unikalne).
 
 ---
 
@@ -124,7 +128,7 @@ Zapisuje bieżący stan symulacji do pliku JSON:
   - Prosta implementacja.
   - Równoległość przyspiesza obliczenia.
 - **Wady**:
-  - Ograniczona skalowalność dla dużych \( N \) ze względu na \( O(N^2) \).
+  - Ograniczona skalowalność dla dużych N ze względu na O(N^2).
   - Wysokie zużycie pamięci dla dużych danych.
 - **Możliwości ulepszenia**:
   - Optymalizacja pamięci dla dużych symulacji.
