@@ -133,20 +133,21 @@ Zapisuje bieżący stan symulacji do pliku JSON:
      - Dynamiczne harmonogramowanie (`dynamic, 64`) równoważy obciążenie wątków.
 
     Przykład:
-      - ```cpp
-      #pragma omp parallel for schedule(dynamic, 64)
-      ```
-      Ta dyrektywa dzieli pętlę na wątki i rozdziela iteracje pomiędzy dostępne rdzenie procesora:
+   - ```cpp
+     #pragma omp parallel for schedule(dynamic, 64)
+     ```
+     
+     Ta dyrektywa dzieli pętlę na wątki i rozdziela iteracje pomiędzy dostępne rdzenie procesora:
         - **`parallel for`**: Oznacza, że każda iteracja zewnętrznej pętli for będzie wykonywana w osobnym wątku.
         - **`schedule(dynamic, 64)`**: Dystrybuuje iteracje zewnętrznej pętli w porcjach po 64 iteracje na wątek. Dynamiczne przydzielanie zapewnia, że wątki, które skończą swoje porcje wcześniej, dostaną kolejne, co minimalizuje nierównomierność obciążenia.
 
    - **Atomowe operacje**:
-      ```cpp
-      #pragma omp atomic
-      bodies.vx[j] -= dt * Fx / bodies.mass[j];
-      ```
-      - Zapewniają bezpieczeństwo wątków podczas modyfikacji wspólnych danych (prędkości).
-      - Dlaczego nie `critical`? Dyrektywa `atomic` jest bardziej wydajna niż `critical`, ponieważ synchronizuje tylko pojedyncze operacje na danych.
+     ```cpp
+     #pragma omp atomic
+     bodies.vx[j] -= dt * Fx / bodies.mass[j];
+     ```
+     - Zapewniają bezpieczeństwo wątków podczas modyfikacji wspólnych danych (prędkości).
+     - Dlaczego nie `critical`? Dyrektywa `atomic` jest bardziej wydajna niż `critical`, ponieważ synchronizuje tylko pojedyncze operacje na danych.
 
    - **Redukcja redundantnych obliczeń**:
      - Siły są symetryczne 
