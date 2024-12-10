@@ -89,8 +89,10 @@ Reprezentuje ciała w symulacji:
 Aktualizuje prędkości ciał zgodnie z prawem grawitacji Newtona:
 - Iteruje przez każdą parę ciał.
 - Oblicza odległość między ciałami i siłę grawitacyjną:
+
    ![alt text](images/image.png)
-   Rozkłada siłę na składowe ![alt text](images/image-1.png).
+   
+   Rozkłada siłę na składowe Fx, Fy, Fz.
 - Aktualizuje prędkości:
    - Dla ciała i: 
 
@@ -102,7 +104,8 @@ Aktualizuje prędkości ciał zgodnie z prawem grawitacji Newtona:
 
 3. **`update_positions`**:
 
-Aktualizuje pozycje ciał w przestrzeni 3D. Nowa pozycja obliczana jako: ![alt text](images/image-4.png)
+Aktualizuje pozycje ciał w przestrzeni 3D. Nowa pozycja obliczana jako: 
+![alt text](images/image-4.png)
 
 4. **`save_state`**:
 
