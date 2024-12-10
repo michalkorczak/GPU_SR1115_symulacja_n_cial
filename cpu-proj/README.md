@@ -89,11 +89,16 @@ Reprezentuje ciała w symulacji:
 Aktualizuje prędkości ciał zgodnie z prawem grawitacji Newtona:
 - Iteruje przez każdą parę ciał.
 - Oblicza odległość między ciałami i siłę grawitacyjną:
-   - ![alt text](images/image.png)
-   - Rozkłada siłę na składowe ![alt text](images/image-1.png).
+   ![alt text](images/image.png)
+   Rozkłada siłę na składowe ![alt text](images/image-1.png).
 - Aktualizuje prędkości:
-   - Dla ciała i: ![alt text](images/image-2.png)
-   - Dla ciała j: ![alt text](images/image-3.png)
+   - Dla ciała i: 
+
+    ![alt text](images/image-2.png)
+
+   - Dla ciała j: 
+   
+   ![alt text](images/image-3.png)
 
 3. **`update_positions`**:
 
@@ -109,8 +114,8 @@ Zapisuje bieżący stan symulacji do pliku JSON:
 
 ## Wydajność i optymalizacje
 1. **Złożoność**:
-   - **Czasowa**: ![alt text](images/image-5.png) z uwagi na konieczność obliczeń dla każdej pary ciał.
-   - **Pamięciowa**: ![alt text](images/image-6.png) dla przechowywania pozycji, prędkości i mas.
+   - **Czasowa**: O(N^2) z uwagi na konieczność obliczeń dla każdej pary ciał.
+   - **Pamięciowa**: O(N) dla przechowywania pozycji, prędkości i mas.
 
 2. **Optymalizacje**:
    - **OpenMP**:
@@ -119,7 +124,11 @@ Zapisuje bieżący stan symulacji do pliku JSON:
    - **Atomowe operacje**:
     - Zapewniają bezpieczeństwo wątków podczas modyfikacji wspólnych danych (prędkości).
    - **Redukcja redundantnych obliczeń**:
-     - Siły są symetryczne ![alt text](images/image-7.png), więc obliczenia są wykonywane tylko dla ![alt text](images/image-8.png) (pary unikalne).
+     - Siły są symetryczne 
+     
+     ![alt text](images/image-7.png) 
+     
+     więc obliczenia są wykonywane tylko dla i < j (pary unikalne).
 
 ---
 
