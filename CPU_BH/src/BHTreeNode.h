@@ -17,9 +17,10 @@ public:
     void insert(const Body& newBody);
     void calculateForce(const Body& target, double& fx, double& fy, double& fz) const;
 
+    void subdivide();
+
 private:
     void updateMassAndCenter(const Body& newBody);
-    void subdivide();
     void placeInChild(const Body& b);
 };
 

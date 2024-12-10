@@ -13,7 +13,7 @@ int main() {
 
     int steps = 100;
 
-    // G³ówna pêtla symulacji
+    // Gï¿½ï¿½wna pï¿½tla symulacji
     for (int step = 0; step < steps; ++step) {
         simulate_step(bodies);
         calculate_total_energy(bodies);
