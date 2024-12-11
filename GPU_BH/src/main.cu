@@ -64,7 +64,7 @@ int main(const int argc, const char** argv) {
     buildTree<<<numberOfBlocks, blockSize>>>(nodes, gpu_bodies, config.numberOfBodies, bounds[0], bounds[1], bounds[2],
                                              bounds[3], bounds[4], bounds[5]);
     cudaDeviceSynchronize();
-    computeForces<<<numberOfBlocks, blockSize>>>(nodes, gpu_bodies, fx, fy, fz, config.numberOfBodies, 10);
+    computeForces<<<numberOfBlocks, blockSize>>>(nodes, gpu_bodies, fx, fy, fz, config.numberOfBodies, .8);
     cudaDeviceSynchronize();
     updateBodies<<<numberOfBlocks, blockSize>>>(gpu_bodies, config.numberOfBodies, fx, fy, fz, config.dt);
 

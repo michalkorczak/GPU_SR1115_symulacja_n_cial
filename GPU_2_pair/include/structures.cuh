@@ -3,9 +3,9 @@
 
 typedef struct {
   float* mass;
-  float2* position;
-  float2* velocity;
-  float2* acceleration;
+  float3* position;
+  float3* velocity;
+  float3* acceleration;
 } Bodies;
 
 #endif

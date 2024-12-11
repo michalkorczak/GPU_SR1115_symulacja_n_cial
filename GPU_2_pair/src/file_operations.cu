@@ -15,9 +15,9 @@ void writeFile(std::string filename, Bodies* bodies, float seconds, int n, bool 
   for (int i = 0; i < n; i++) {
     json body = {
         {"id", i},
-        {"p", {{"x", bodies->position[i].x}, {"y", bodies->position[i].y}}},
-        {"v", {{"x", bodies->velocity[i].x}, {"y", bodies->velocity[i].y}}},
-        {"a", {{"x", bodies->acceleration[i].x}, {"y", bodies->acceleration[i].y}}},
+        {"p", {{"x", bodies->position[i].x}, {"y", bodies->position[i].y}, {"z", bodies->position[i].z}}},
+        {"v", {{"x", bodies->velocity[i].x}, {"y", bodies->velocity[i].y}, {"z", bodies->velocity[i].z}}},
+        {"a", {{"x", bodies->acceleration[i].x}, {"y", bodies->acceleration[i].y}, {"z", bodies->acceleration[i].z}}},
         {"m", *bodies->mass}
     };
     jsonString["bodies"].push_back(body);

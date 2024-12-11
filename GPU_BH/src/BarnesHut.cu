@@ -87,6 +87,8 @@ __device__ void insertBody(TreeNode* node, const Bodies& bodies, int bodyIdx, do
     if (node->bodyIndex == -1) {
       node->bodyIndex = bodyIdx;
     } else {
+      node->isLeaf = false;
+
       double x_mid = (node->x_min + node->x_max) / 2;
       double y_mid = (node->y_min + node->y_max) / 2;
       double z_mid = (node->z_min + node->z_max) / 2;
